@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: merkle_audit_db
+    environment:
+      POSTGRES_DB: merkle_audit
+      POSTGRES_USER: audit_user
+      POSTGRES_PASSWORD: audit_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U audit_user -d merkle_audit"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ganache:
+    image: trufflesuite/ganache:latest
+    container_name: merkle_audit_ganache
+    ports:
+      - "8545:8545"
+    command:
+      - "--deterministic"
+      - "--accounts=10"
+      - "--defaultBalanceEther=1000"
+      - "--gasLimit=12000000"
+      - "--networkId=1337"
+      - "--chain.chainId=1337"
+      - "--db=/ganache_data"
+    volumes:
+      - ganache_data:/ganache_data
+
+volumes:
+  pgdata:
+  ganache_data:
+
